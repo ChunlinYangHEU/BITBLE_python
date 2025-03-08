@@ -31,7 +31,7 @@ Binary Tree Block encoding for quantum circuits
 
 ## Note
 
-Put the folder "BITBLE" under the root directory of your project
+Put the folder "[bitble](https://github.com/ChunlinYangHEU/BITBLE_python/tree/main/bitble)" under the root directory of your project
 Matlab implementation can be found in [https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab](https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab)
 
 ## mindquantum - implementation
