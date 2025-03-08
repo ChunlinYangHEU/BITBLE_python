@@ -32,7 +32,7 @@ Binary Tree Block encoding for quantum circuits
 ## Note
 
 Put the folder "[bitble](https://github.com/ChunlinYangHEU/BITBLE_python/tree/main/bitble)" under the root directory of your project
-Matlab implementation can be found in [https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab](https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab)
+
 
 ## mindquantum - implementation
 
@@ -460,5 +460,8 @@ The matrix to be encoded (A0):
 4.637263367040817e-16
 ```
 
+## Matlab implementation
+
+More block-encoding circuits with different normalziation factor in low circuit size can be found [https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab](https://github.com/zexianLIPolyU/BITBLE-SIABLE_matlab) .
 
 
