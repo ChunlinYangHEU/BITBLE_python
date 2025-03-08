@@ -35,9 +35,270 @@ Put the folder "BITBLE" under the root directory of your project
 
 ## mindquantum - implementation
 
+### State Preparation ###
+```
+import numpy as np
+from mindquantum import *
+from bitble.mindquant import statepreparation
+
+if __name__ == '__main__':
+    """
+         Tests the preparation of a random complex(real)-valued quantum state using compressed state preparation.
+
+        Args:
+            n (int): The number of qubits used to represent the state. The state will have 2^n amplitudes.
+            epsilon (float): The threshold for filtering out small rotation angles during the compressed
+                state preparation process. This parameter controls the trade-off between circuit complexity
+                and accuracy.
+
+        Returns:
+            None: The function prints the constructed quantum circuit, the prepared state, the original
+                state, and the Frobenius norm of their difference.
+    """
+    n = 3
+    epsilon = 0
+    # state = np.random.randn(2 ** n)
+    state = (np.random.randn(2 ** n) + 1j * np.random.randn(2 ** n))
+    state = state / np.linalg.norm(state)
+
+    circuit = statepreparation.compressed_state_preparation(state, list(range(n)), epsilon=epsilon)
+    print(circuit)
+
+    unitary = circuit.matrix()
+    res_state = statepreparation.get_prepared_state(unitary)
+
+    if all(np.isreal(state)):
+        print('--------Real state preparation--------')
+    else:
+        print('--------Complex state preparation--------')
+    print('The prepared state (s):')
+    print(res_state)
+    print('')
+    print('The state to be prepared (s0):')
+    print(state)
+    print('')
+    print('||s - s0||_F:')
+    print(np.linalg.norm(res_state - state))
+```
+Output:
+```
+          ┌──┐                                             
+q_0:  |0>─┤RY├ ─■─ ──── ─■─ ─── ──── ─■─ ──── ─── ──── ─■─ 
+          ├──┤ ┌┴┐ ┌──┐ ┌┴┐           │                 │  
+q_1:  |0>─┤RY├ ┤X├ ┤RY├ ┤X├ ─■─ ──── ─┼─ ──── ─■─ ──── ─┼─ 
+          ├──┤ └─┘ └──┘ └─┘ ┌┴┐ ┌──┐ ┌┴┐ ┌──┐ ┌┴┐ ┌──┐ ┌┴┐ 
+q_2:  |0>─┤RY├ ─── ──── ─── ┤X├ ┤RY├ ┤X├ ┤RY├ ┤X├ ┤RY├ ┤X├ 
+          └──┘              └─┘ └──┘ └─┘ └──┘ └─┘ └──┘ └─┘ 
+ c :   / ═
+          
 
 
+The prepared state (s):
+[-0.23134533+0.j -0.57104455+0.j -0.28755591+0.j  0.45584902+0.j
+  0.38374133+0.j -0.04772773+0.j -0.41137543+0.j -0.10552557+0.j]
 
+The state to be prepared (s0):
+[-0.23134533 -0.57104455 -0.28755591  0.45584902  0.38374133 -0.04772773
+ -0.41137543 -0.10552557]
+
+||s - s0||_F:
+6.689108119396521e-16
+
+Process finished with exit code 0
+```
+### Block Encoding ###
+
+```
+from mindquantum import *
+from bitble.mindquant import blockencoding
+import numpy as np
+
+
+if __name__ == '__main__':
+    n = 2
+    epsilon = 0
+    matrix = np.random.randn(2 ** n, 2 ** n) + 1j * np.random.randn(2 ** n, 2 ** n)
+    matrix = matrix / np.linalg.norm(matrix)
+    """
+        Tests the block encoding of a random complex-valued matrix using compressed quantum circuit.
+
+        Args:
+            n (int): The number of qubits used to represent the matrix. The matrix will have dimensions
+                2^n × 2^n.
+            epsilon (float): The threshold for filtering out small rotation angles during the compressed
+                quantum circuit construction. This parameter controls the trade-off between circuit
+                complexity and accuracy.
+
+        Returns:
+            None: The function prints the constructed quantum circuit, the encoded matrix, the original
+                matrix, and the Frobenius norm of their difference.
+        """
+
+
+    qubits = list(range(2 * n))
+    circuit = blockencoding.compress_qcircuit(matrix, qubits, epsilon=epsilon)
+    print(circuit)
+
+    unitary = circuit.matrix()
+    res_matrix = blockencoding.get_encoded_matrix(unitary, n)
+
+    print('The encoded matrix (A):')
+    print(res_matrix)
+    print('The matrix to be encoded (A0):')
+    print(matrix)
+    print('||A - A0||_F:')
+    print(np.linalg.norm(res_matrix - matrix))
+```
+Output:
+```
+      ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓    
+q0: ──┨ RZ(0.4574) ┠─┨╺╋╸┠─┨ RZ(-0.4706) ┠─┨╺╋╸┠─┨ RZ(0.2955) ┠─┨╺╋╸┠─↯─ 
+      ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛    
+                       ┃                     ┃                    ┃      
+q1: ───────────────────╂─────────────────────╂────────────────────╂───↯─ 
+                       ┃                     ┃                    ┃      
+                       ┃                     ┃                    ┃      
+q2: ───────────────────╂─────────────────────■────────────────────╂───↯─ 
+                       ┃                                          ┃      
+                       ┃                                          ┃      
+q3: ───────────────────■──────────────────────────────────────────■───↯─ 
+                                                                         
+      ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓   
+q0: ──┨ RZ(-0.6962) ┠─┨╺╋╸┠─┨ RY(2.1127) ┠─┨╺╋╸┠─┨ RY(-0.1469) ┠─┨╺╋╸┠─↯─
+      ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛   
+                        ┃                    ┃                     ┃     
+q1: ────────────────────╂────────────────────╂─────────────────────╂───↯─
+                        ┃                    ┃                     ┃     
+                        ┃                    ┃                     ┃     
+q2: ────────────────────■────────────────────╂─────────────────────■───↯─
+                                             ┃                           
+                                             ┃                           
+q3: ─────────────────────────────────────────■─────────────────────────↯─
+                                                                         
+      ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓                         
+q0: ──┨ RY(-0.0678) ┠─┨╺╋╸┠─┨ RY(-0.142) ┠─┨╺╋╸┠──────────────────────↯─ 
+      ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛                         
+                        ┃                    ┃   ┏━━━━━━━━━━━━┓ ┏━━━┓    
+q1: ────────────────────╂────────────────────╂───┨ RY(1.3631) ┠─┨╺╋╸┠─↯─ 
+                        ┃                    ┃   ┗━━━━━━━━━━━━┛ ┗━┳━┛    
+                        ┃                    ┃                    ┃      
+q2: ────────────────────╂────────────────────■────────────────────╂───↯─ 
+                        ┃                                         ┃      
+                        ┃                                         ┃      
+q3: ────────────────────■─────────────────────────────────────────■───↯─ 
+                                                                         
+q0: ───────────────────────────────────────────────────────────────■───↯─
+                                                                   ┃     
+      ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━┻━┓   
+q1: ──┨ RY(0.1846) ┠─┨╺╋╸┠─┨ RY(-0.3132) ┠─┨╺╋╸┠─┨ RY(-0.1245) ┠─┨╺╋╸┠─↯─
+      ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━━━┛   
+                       ┃                     ┃                           
+q2: ───────────────────■─────────────────────╂─────────────────────────↯─
+                                             ┃                           
+                                             ┃                           
+q3: ─────────────────────────────────────────■─────────────────────────↯─
+                                                                         
+q0: ─────────────────────────────────────────────────────────────────↯─  
+                                                                         
+      ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓     
+q1: ──┨ RY(0.3799) ┠─┨╺╋╸┠─┨ RY(0.0751) ┠─┨╺╋╸┠─┨ RY(0.1456) ┠─┨╺╋╸┠─↯─  
+      ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛     
+                       ┃                    ┃                    ┃       
+q2: ───────────────────╂────────────────────■────────────────────╂───↯─  
+                       ┃                                         ┃       
+                       ┃                                         ┃       
+q3: ───────────────────■─────────────────────────────────────────■───↯─  
+                                                                         
+                            ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓        
+q0: ────────────────────■───┨ RZ(-1.2829) ┠─┨╺╋╸┠─┨ RZ(-1.4147) ┠─↯─     
+                        ┃   ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛        
+      ┏━━━━━━━━━━━━━┓ ┏━┻━┓                   ┃                          
+q1: ──┨ RY(-0.1376) ┠─┨╺╋╸┠───────────────────╂───────────────────↯─     
+      ┗━━━━━━━━━━━━━┛ ┗━━━┛                   ┃                          
+                                              ┃                          
+q2: ──────────────────────────────────────────╂───────────────────↯─     
+                                              ┃                          
+                                              ┃                          
+q3: ──────────────────────────────────────────■───────────────────↯─     
+                                                                         
+      ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓                   
+q0: ──┨╺╋╸┠─┨ RZ(0.1441) ┠─┨╺╋╸┠─┨ RZ(-2.0382) ┠─┨╺╋╸┠─────────────────↯─
+      ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛                   
+        ┃                    ┃                     ┃   ┏━━━━━━━━━━━━━┓   
+q1: ────╂────────────────────╂─────────────────────╂───┨ RZ(-1.8526) ┠─↯─
+        ┃                    ┃                     ┃   ┗━━━━━━━━━━━━━┛   
+        ┃                    ┃                     ┃                     
+q2: ────■────────────────────╂─────────────────────■───────────────────↯─
+                             ┃                                           
+                             ┃                                           
+q3: ─────────────────────────■─────────────────────────────────────────↯─
+                                                                         
+q0: ────────────────────────────────────────────────────────────────↯─   
+                                                                         
+      ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━┓      
+q1: ──┨╺╋╸┠─┨ RZ(1.7738) ┠─┨╺╋╸┠─┨ RZ(0.7078) ┠─┨╺╋╸┠─┨ RZ(0.303) ┠─↯─   
+      ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━┛      
+        ┃                    ┃                    ┃                      
+q2: ────╂────────────────────■────────────────────╂─────────────────↯─   
+        ┃                                         ┃                      
+        ┃                                         ┃                      
+q3: ────■─────────────────────────────────────────■─────────────────↯─   
+                                                                         
+q0: ────■──────────────────────────────────────────────────────────────↯─
+        ┃                                                                
+      ┏━┻━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━━┓ ┏━━━┓ ┏━━━━━━━━━━━━┓   
+q1: ──┨╺╋╸┠─┨ RZ(-1.5594) ┠─┨╺╋╸┠─┨ RZ(-0.3798) ┠─┨╺╋╸┠─┨ RZ(0.0028) ┠─↯─
+      ┗━━━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━━┛ ┗━┳━┛ ┗━━━━━━━━━━━━┛   
+                              ┃                     ┃                    
+q2: ──────────────────────────╂─────────────────────■──────────────────↯─
+                              ┃                                          
+                              ┃                                          
+q3: ──────────────────────────■────────────────────────────────────────↯─
+                                                                         
+q0: ─────────────────────────■───╳─────■────────────────────■───↯─       
+                             ┃   ┃     ┃                    ┃            
+      ┏━━━┓ ┏━━━━━━━━━━━━┓ ┏━┻━┓ ┃   ┏━┻━┓ ┏━━━━━━━━━━━━┓ ┏━┻━┓          
+q1: ──┨╺╋╸┠─┨ RZ(1.3001) ┠─┨╺╋╸┠─┃─╳─┨╺╋╸┠─┨ RY(0.1774) ┠─┨╺╋╸┠─↯─       
+      ┗━┳━┛ ┗━━━━━━━━━━━━┛ ┗━━━┛ ┃ ┃ ┗━━━┛ ┗━━━━━━━━━━━━┛ ┗━━━┛          
+        ┃                        ┃ ┃                                     
+q2: ────╂────────────────────────╳─┃────────────────────────────↯─       
+        ┃                          ┃                                     
+        ┃                          ┃                                     
+q3: ────■──────────────────────────╳────────────────────────────↯─       
+                                                                         
+      ┏━━━━━━━━━━━━┓                                                     
+q0: ──┨ RY(-1.349) ┠────                                                 
+      ┗━━━━━━━━━━━━┛                                                     
+      ┏━━━━━━━━━━━━━┓                                                    
+q1: ──┨ RY(-1.5645) ┠───                                                 
+      ┗━━━━━━━━━━━━━┛                                                    
+                                                                         
+q2: ────────────────────                                                 
+                                                                         
+                                                                         
+q3: ────────────────────                                                 
+
+The encoded matrix (A):
+[[-1.91333632e-01+0.19179827j -1.75090829e-01+0.02248911j
+   8.67192857e-02-0.10243516j -3.18008805e-02-0.18122005j]
+ [-2.39502433e-01+0.12802397j  9.14206875e-02-0.11511729j
+   3.67289370e-02+0.12464116j -2.97753425e-02-0.02274609j]
+ [-4.22473818e-01-0.11624631j  1.63120914e-01+0.30592713j
+   6.15539570e-05+0.12368836j -3.08109069e-01+0.02940703j]
+ [ 3.86273271e-02-0.14173991j -2.75500846e-01-0.02030555j
+  -3.10171694e-01-0.12400485j -2.75093487e-01-0.14656077j]]
+The matrix to be encoded (A0):
+[[-1.91333632e-01+0.19179827j -1.75090829e-01+0.02248911j
+   8.67192857e-02-0.10243516j -3.18008805e-02-0.18122005j]
+ [-2.39502433e-01+0.12802397j  9.14206875e-02-0.11511729j
+   3.67289370e-02+0.12464116j -2.97753425e-02-0.02274609j]
+ [-4.22473818e-01-0.11624631j  1.63120914e-01+0.30592713j
+   6.15539570e-05+0.12368836j -3.08109069e-01+0.02940703j]
+ [ 3.86273271e-02-0.14173991j -2.75500846e-01-0.02030555j
+  -3.10171694e-01-0.12400485j -2.75093487e-01-0.14656077j]]
+||A - A0||_F:
+4.672551908896126e-16
+```
 
 ## pyqpanda - implementation
 
@@ -45,9 +306,11 @@ Put the folder "BITBLE" under the root directory of your project
 ### State Preparation ###
 
 ```
-    from pyqpanda import *
-    from BITBLE.qpanda import statepreparation
+import numpy as np
+from pyqpanda import *
+from BITBLE.qpanda import statepreparation
 
+if __name__ == '__main__':
     n = 3
     epsilon = 0
     state = np.random.randn(2 ** n) + 1j * np.random.randn(2 ** n)
@@ -100,9 +363,10 @@ The state to be prepared (s0):
 ### Block Encoding ###
 
 ```
-    from pyqpanda import *
-    from BITBLE.qpanda import blockencoding
-    import numpy as np
+import numpy as np
+from pyqpanda import *
+from BITBLE.qpanda import blockencoding
+
 
     n = 3
     epsilon = 0
