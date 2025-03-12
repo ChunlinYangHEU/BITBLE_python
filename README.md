@@ -2,7 +2,7 @@
 Binary Tree Block encoding for quantum circuits
 
 
-## Install Python and Python pachages
+## Install Python and Python packages
 
 1. Download and install [Anaconda](https://www.anaconda.com/download)
 
