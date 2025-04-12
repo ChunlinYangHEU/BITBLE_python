@@ -3,7 +3,7 @@ Binary Tree Block encoding for quantum circuits (python version)
 
 This algorithm is bulit on top of [mindquantum](https://www.mindspore.cn/mindquantum/docs/en/r0.6/index.html)/[PyQPanda](https://github.com/OriginQ/pyQPanda-Toturial/blob/master/source/index.rst) in Python
 
-## Install Python and Python packages
+## 1. Install Python and Python packages
 
 1. Download and install [Anaconda](https://www.anaconda.com/download)
 
@@ -35,7 +35,7 @@ This algorithm is bulit on top of [mindquantum](https://www.mindspore.cn/mindqua
 Put the folder "[bitble](https://github.com/ChunlinYangHEU/BITBLE_python/tree/main/bitble)" under the root directory of your project
 
 
-## mindquantum - implementation
+## 2. mindquantum - implementation
 
 ### State Preparation ###
 ```
@@ -330,7 +330,7 @@ The matrix to be encoded (A0):
 4.672551908896126e-16
 ```
 
-## pyqpanda - implementation
+## 3. pyqpanda - implementation
 
 
 ### State Preparation ###
