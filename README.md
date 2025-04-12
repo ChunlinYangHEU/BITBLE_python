@@ -22,12 +22,12 @@ This algorithm is bulit on top of [mindquantum](https://www.mindspore.cn/mindqua
    pip install numpy
    ```
 
-   If using [mindquantum](https://www.mindspore.cn/mindquantum/docs/en/r0.6/index.html) package
+   If using [mindquantum](https://www.mindspore.cn/mindquantum/docs/en/r0.6/index.html) package, then
    ```
    pip install mindquantum
    ```
 
-   If using [PyQPanda](https://github.com/OriginQ/pyQPanda-Toturial/blob/master/source/index.rst) package
+   If using [PyQPanda](https://github.com/OriginQ/pyQPanda-Toturial/blob/master/source/index.rst) package, then
    ```
    pip install pyqpanda
    ```
