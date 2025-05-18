@@ -1,6 +1,9 @@
 # BITBLE
 Binary Tree Block encoding for quantum circuits (python version)
 
+References:
+[https://arxiv.org/abs/2504.05624](https://arxiv.org/abs/2504.05624)
+
 This algorithm is bulit on top of [mindquantum](https://www.mindspore.cn/mindquantum/docs/en/r0.6/index.html)/[PyQPanda](https://github.com/OriginQ/pyQPanda-Toturial/blob/master/source/index.rst) in Python
 
 ## 1. Install Python and Python packages
